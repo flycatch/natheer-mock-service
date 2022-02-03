@@ -1,0 +1,27 @@
+app:
+  util:
+    passwordHashRounds: 10
+    streamFetchSize: 1000 # max no of rows fetched from database when streaming data
+  natheer:
+    watchList:
+      username: ${NATHEER_USERNAME}
+      password: ${NATHEER_PASSWORD}
+      baseUrl: ${NATHEER_BASE_URL:}
+      findPersonUrl: ${NATHEER_FIND_PERSON_URL}
+      addPersonUrl: ${NATHEER_ADD_PERSON_URL}
+      deletePersonUrl: ${NATHEER_DELETE_PERSON_URL}
+      findPersonsBulkUrl: ${NATHEER_FIND_PERSONS_BULK_URL}
+      addPersonsBulkUrl: ${NATHEER_ADD_PERSONS_BULK_URL}
+      deletePersonsBulkUrl: ${NATHEER_DELETE_PERSONS_BULK_URL}
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: ${DB_DRIVER}
+  jpa:
+    properties:
+      hibernate:
+        dialect: ${DB_DIALECT}
+    hibernate:
+      ddl-auto: update
