@@ -1,4 +1,4 @@
-package com.flycatch.natheer.mock.service.service.natheer;
+package com.flycatch.natheer.mock.service.service.natheeernotification;
 
 import com.flycatch.natheer.mock.service.payloads.request.PrimaryIdNotificationRequest;
 

@@ -1,10 +1,10 @@
 package com.flycatch.natheer.mock.service.models;
 
+import javax.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-import javax.persistence.*;
 
 @Getter
 @Setter

@@ -1,4 +1,4 @@
-package com.flycatch.natheer.mock.service.service.natheer;
+package com.flycatch.natheer.mock.service.service.natheeernotification;
 
 import com.flycatch.natheer.mock.service.models.PrimaryIdNotification;
 import com.flycatch.natheer.mock.service.payloads.request.PrimaryIdNotificationRequest;
@@ -12,9 +12,10 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class DefaultNatheerNotificationService implements NatheerNotificationService {
+public class DefaultNatheerNotificationService implements NatheerNotificationService{
 
     private final NatheerNotificationRepository natheerNotificationRepository;
+
 
     @Override
     public void saveNotification(List<PrimaryIdNotificationRequest> requests) {
@@ -27,5 +28,6 @@ public class DefaultNatheerNotificationService implements NatheerNotificationSer
             primaryIdNotification.setParameter(data.getParameterList().toString());
             natheerNotificationRepository.save(primaryIdNotification);
         });
+
     }
 }
