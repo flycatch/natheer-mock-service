@@ -20,10 +20,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 
@@ -47,8 +44,12 @@ public class NatheerMockController {
         return  createNatheerResponse(personBulkAddService.addPersonDetails(addPersonBulkRequests));
     }
 
-    @PostMapping("/primaryIdNotification")
-    public ResponseEntity<String> primaryIdNotification(@RequestBody PrimaryIdNotificationRequest primaryIdNotificationRequest) {
+    @GetMapping("/trigger-primary-id/{personId}")
+    public ResponseEntity<String> primaryIdNotification(@PathVariable Long id) {
+        PrimaryIdNotificationRequest primaryIdNotificationRequest = new PrimaryIdNotificationRequest();
+        primaryIdNotificationRequest.setPrimaryId(id);
+        primaryIdNotificationRequest.setNotificationId(183);
+        primaryIdNotificationRequest.setNotificationCode(1000);
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<String> request = new HttpEntity<>(createHeaders(username, password));
         restTemplate.exchange(clientUrl, HttpMethod.POST,
