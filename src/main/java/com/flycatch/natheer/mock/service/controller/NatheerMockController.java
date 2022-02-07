@@ -4,39 +4,36 @@ import com.flycatch.natheer.mock.service.Constants;
 import com.flycatch.natheer.mock.service.models.NatheerPersonDetails;
 import com.flycatch.natheer.mock.service.models.ResultStatus;
 import com.flycatch.natheer.mock.service.payloads.request.AddPersonBulkRequest;
-import com.flycatch.natheer.mock.service.payloads.request.PrimaryIdNotificationRequest;
 import com.flycatch.natheer.mock.service.payloads.response.AddedPersonResponse;
-import com.flycatch.natheer.mock.service.payloads.response.ApiResponse;
 import com.flycatch.natheer.mock.service.payloads.response.PersonDetailsResponse;
 import com.flycatch.natheer.mock.service.payloads.response.ResultStatusResponse;
 import com.flycatch.natheer.mock.service.service.addedperson.PersonBulkAddService;
-import com.flycatch.natheer.mock.service.service.natheeernotification.NatheerNotificationService;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import org.springframework.web.client.RestTemplate;
+
 
 @RestController
 @RequiredArgsConstructor
 public class NatheerMockController {
 
     private final PersonBulkAddService personBulkAddService;
-    private final NatheerNotificationService natheerNotificationService;
 
     @PostMapping("/natheer-services/watchlist/person/bulk/add")
-    public ResponseEntity<ApiResponse> addPersonBulk(@RequestBody Set<AddPersonBulkRequest> addPersonBulkRequests) {
-        return ApiResponse.create(HttpStatus.OK, true, Constants.SUCCESSFULLY_ADDED,
-                createNatheerResponse(personBulkAddService.addPersonDetails(addPersonBulkRequests)));
+    public Set<AddedPersonResponse> addPersonBulk(@RequestBody Set<AddPersonBulkRequest> addPersonBulkRequests) {
+        return  createNatheerResponse(personBulkAddService.addPersonDetails(addPersonBulkRequests));
     }
 
-    @PostMapping("/primaryIdNotification")
-    public ResponseEntity<String> notify(@RequestBody List<PrimaryIdNotificationRequest> requests) {
-        natheerNotificationService.saveNotification(requests);
+    @GetMapping("/primaryIdNotification")
+    public ResponseEntity<String> primaryIdNotification() {
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getForObject("http://34.122.34.215:8001/login", String.class);
         return ResponseEntity.ok()
                 .body(Constants.SUCCESS);
     }
