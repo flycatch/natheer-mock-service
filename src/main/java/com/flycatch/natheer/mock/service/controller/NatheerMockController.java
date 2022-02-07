@@ -31,6 +31,9 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 public class NatheerMockController {
 
+    @Value("${app.util.clientUrl}")
+    private String clientUrl;
+
     @Value("${app.util.username}")
     private String username;
 
@@ -44,11 +47,12 @@ public class NatheerMockController {
         return  createNatheerResponse(personBulkAddService.addPersonDetails(addPersonBulkRequests));
     }
 
-    @GetMapping("/primaryIdNotification")
-    public ResponseEntity<String> primaryIdNotification() {
+    @PostMapping("/primaryIdNotification")
+    public ResponseEntity<String> primaryIdNotification(@RequestBody PrimaryIdNotificationRequest primaryIdNotificationRequest) {
         RestTemplate restTemplate = new RestTemplate();
-        restTemplate.exchange("http://34.122.34.215:8001/login", HttpMethod.POST,
-                new HttpEntity<>(createHeaders(username, password)), PrimaryIdNotificationRequest.class);
+        HttpEntity<String> request = new HttpEntity<>(createHeaders(username, password));
+        restTemplate.exchange(clientUrl, HttpMethod.POST,
+                request, primaryIdNotificationRequest.getClass());
         return ResponseEntity.ok()
                 .body(Constants.SUCCESS);
     }

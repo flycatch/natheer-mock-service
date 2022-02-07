@@ -2,6 +2,7 @@ app:
   util:
     username: ${USERNAME}
     password: ${PASSWORD}
+    clientUrl: ${CLIENT_URL}
 spring:
   datasource:
     url: ${DB_URL}
