@@ -4,22 +4,19 @@ import com.flycatch.natheer.mock.service.Constants;
 import com.flycatch.natheer.mock.service.models.NatheerPersonDetails;
 import com.flycatch.natheer.mock.service.models.ResultStatus;
 import com.flycatch.natheer.mock.service.payloads.request.AddPersonBulkRequest;
-import com.flycatch.natheer.mock.service.payloads.request.PrimaryIdNotificationRequest;
 import com.flycatch.natheer.mock.service.payloads.response.AddedPersonResponse;
 import com.flycatch.natheer.mock.service.payloads.response.PersonDetailsResponse;
 import com.flycatch.natheer.mock.service.payloads.response.ResultStatusResponse;
 import com.flycatch.natheer.mock.service.service.addedperson.PersonBulkAddService;
-
 import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -29,7 +26,7 @@ import org.springframework.web.client.RestTemplate;
 public class NatheerMockController {
 
     @Value("${app.util.clientUrl}")
-    private String clientUrl;
+    private String  clientUrl;
 
     @Value("${app.util.username}")
     private String username;
@@ -41,35 +38,35 @@ public class NatheerMockController {
 
     @PostMapping("/natheer-services/watchlist/person/bulk/add")
     public Set<AddedPersonResponse> addPersonBulk(@RequestBody Set<AddPersonBulkRequest> addPersonBulkRequests) {
-        return  createNatheerResponse(personBulkAddService.addPersonDetails(addPersonBulkRequests));
+        return createNatheerResponse(personBulkAddService.addPersonDetails(addPersonBulkRequests));
     }
 
     @GetMapping("/trigger-primary-id/{personId}")
     public ResponseEntity<String> primaryIdNotification(@PathVariable Long id) {
-        PrimaryIdNotificationRequest primaryIdNotificationRequest = new PrimaryIdNotificationRequest();
-        primaryIdNotificationRequest.setPrimaryId(id);
-        primaryIdNotificationRequest.setNotificationId(183);
-        primaryIdNotificationRequest.setNotificationCode(1000);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization" , createHeaders(username, password));
+        MultiValueMap<String, Long> map= new LinkedMultiValueMap<>();
+        map.add("primaryId", id);
+        map.add("notificationId", 183L);
+        map.add("notificationCode", 1000L);
+        HttpEntity<MultiValueMap<String, Long>> request = new HttpEntity<>(map, headers);
         RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<String> request = new HttpEntity<>(createHeaders(username, password));
-        restTemplate.exchange(clientUrl, HttpMethod.POST,
-                request, primaryIdNotificationRequest.getClass());
+        restTemplate.postForEntity(clientUrl, request, String.class);
         return ResponseEntity.ok()
                 .body(Constants.SUCCESS);
     }
 
-    HttpHeaders createHeaders(String username, String password){
-        return new HttpHeaders() {{
-            String auth = username + ":" + password;
-            byte[] encodedAuth = Base64.encodeBase64(
-                    auth.getBytes(Charset.forName("US-ASCII")) );
-            String authHeader = "Basic " + new String( encodedAuth );
-            set( "Authorization", authHeader );
-        }};
+    String createHeaders(String username, String password) {
+        String auth = username + ":" + password;
+        byte[] encodedAuth = Base64.encodeBase64(
+                auth.getBytes(Charset.forName("US-ASCII")));
+        String authHeader = "Basic " + new String(encodedAuth);
+        return authHeader;
     }
+
     private static Set<AddedPersonResponse> createNatheerResponse(Set<NatheerPersonDetails> natheerPersonDetails) {
         Set<AddedPersonResponse> addedPersonResponses = new HashSet<>();
-        for(NatheerPersonDetails natheerPersonDetails1 : natheerPersonDetails) {
+        for (NatheerPersonDetails natheerPersonDetails1 : natheerPersonDetails) {
             AddedPersonResponse addedPersonResponse = new AddedPersonResponse();
             PersonDetailsResponse personDetailsResponse = new PersonDetailsResponse();
             personDetailsResponse.setPersonId(natheerPersonDetails1.getPersonId());
