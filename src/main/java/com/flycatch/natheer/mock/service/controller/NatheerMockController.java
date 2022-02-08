@@ -4,6 +4,7 @@ import com.flycatch.natheer.mock.service.Constants;
 import com.flycatch.natheer.mock.service.models.NatheerPersonDetails;
 import com.flycatch.natheer.mock.service.models.ResultStatus;
 import com.flycatch.natheer.mock.service.payloads.request.AddPersonBulkRequest;
+import com.flycatch.natheer.mock.service.payloads.request.PrimaryIdNotificationRequest;
 import com.flycatch.natheer.mock.service.payloads.response.AddedPersonResponse;
 import com.flycatch.natheer.mock.service.payloads.response.PersonDetailsResponse;
 import com.flycatch.natheer.mock.service.payloads.response.ResultStatusResponse;
@@ -15,8 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -45,11 +44,11 @@ public class NatheerMockController {
     public ResponseEntity<String> primaryIdNotification(@PathVariable Long id) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization" , createHeaders(username, password));
-        MultiValueMap<String, Long> map= new LinkedMultiValueMap<>();
-        map.add("primaryId", id);
-        map.add("notificationId", 183L);
-        map.add("notificationCode", 1000L);
-        HttpEntity<MultiValueMap<String, Long>> request = new HttpEntity<>(map, headers);
+        PrimaryIdNotificationRequest primaryIdNotificationRequest = new PrimaryIdNotificationRequest();
+        primaryIdNotificationRequest.setPrimaryId(id);
+        primaryIdNotificationRequest.setNotificationId(183);
+        primaryIdNotificationRequest.setNotificationCode(1000);
+        HttpEntity<PrimaryIdNotificationRequest> request = new HttpEntity<>(primaryIdNotificationRequest, headers);
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.postForEntity(clientUrl, request, String.class);
         return ResponseEntity.ok()
@@ -60,8 +59,7 @@ public class NatheerMockController {
         String auth = username + ":" + password;
         byte[] encodedAuth = Base64.encodeBase64(
                 auth.getBytes(Charset.forName("US-ASCII")));
-        String authHeader = "Basic " + new String(encodedAuth);
-        return authHeader;
+        return "Basic " + new String(encodedAuth);
     }
 
     private static Set<AddedPersonResponse> createNatheerResponse(Set<NatheerPersonDetails> natheerPersonDetails) {
