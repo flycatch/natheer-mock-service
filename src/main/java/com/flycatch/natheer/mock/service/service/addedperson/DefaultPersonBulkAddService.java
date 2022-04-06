@@ -23,6 +23,9 @@ public class DefaultPersonBulkAddService implements PersonBulkAddService {
         Set<NatheerPersonDetails> natheerPersonDetails = new HashSet<>();
         for (AddPersonBulkRequest addPersonBulkRequest : addPersonBulkRequests) {
             NatheerPersonDetails natheerPersonDetails1 = new NatheerPersonDetails();
+            System.out.println("dob");
+            System.out.println(addPersonBulkRequest.getPerson().getPersonId());
+            System.out.println(addPersonBulkRequest.getPerson().getPersonDob());
             natheerPersonDetails1.setPersonId(addPersonBulkRequest.getPerson().getPersonId());
             natheerPersonDetails1.setPersonDob(addPersonBulkRequest.getPerson().getPersonDob());
             natheerPersonDetailsRepository.save(natheerPersonDetails1);

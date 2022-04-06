@@ -10,11 +10,16 @@ import com.flycatch.natheer.mock.service.payloads.response.PersonDetailsResponse
 import com.flycatch.natheer.mock.service.payloads.response.ResultStatusResponse;
 import com.flycatch.natheer.mock.service.service.addedperson.PersonBulkAddService;
 import java.nio.charset.Charset;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -41,14 +46,16 @@ public class NatheerMockController {
     }
 
     @GetMapping("/trigger-primary-id/{personId}")
-    public ResponseEntity<String> primaryIdNotification(@PathVariable Long id) {
+    public ResponseEntity<String> primaryIdNotification(@PathVariable Long personId) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization" , createHeaders(username, password));
         PrimaryIdNotificationRequest primaryIdNotificationRequest = new PrimaryIdNotificationRequest();
-        primaryIdNotificationRequest.setPrimaryId(id);
+        primaryIdNotificationRequest.setPrimaryId(personId);
         primaryIdNotificationRequest.setNotificationId(183);
         primaryIdNotificationRequest.setNotificationCode(1000);
-        HttpEntity<PrimaryIdNotificationRequest> request = new HttpEntity<>(primaryIdNotificationRequest, headers);
+        List<PrimaryIdNotificationRequest> list = new ArrayList<>();
+        list.add(primaryIdNotificationRequest);
+        HttpEntity<List<PrimaryIdNotificationRequest>> request = new HttpEntity<>(list, headers);
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.postForEntity(clientUrl, request, String.class);
         return ResponseEntity.ok()
@@ -68,7 +75,11 @@ public class NatheerMockController {
             AddedPersonResponse addedPersonResponse = new AddedPersonResponse();
             PersonDetailsResponse personDetailsResponse = new PersonDetailsResponse();
             personDetailsResponse.setPersonId(natheerPersonDetails1.getPersonId());
-            personDetailsResponse.setPersonDob(natheerPersonDetails1.getPersonDob());
+            var dob = natheerPersonDetails1.getPersonDob();
+            var s=dob.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+            LocalDate date = LocalDate.parse(s, formatter);
+            personDetailsResponse.setPersonDob(date);
             addedPersonResponse.setPerson(personDetailsResponse);
             ResultStatusResponse response = new ResultStatusResponse();
             if (natheerPersonDetails1.getPersonId().length() != 10) {

@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  app:
+    container_name: natheermock
+    depends_on:
+      - natheermock-db
+    restart: on-failure
+    ports:
+      - ${PORT:-8080}:8080
+    image: natheermock
+    environment:
+      - DB_USERNAME
+      - DB_PASSWORD
+      - DB_URL
+      - DB_DRIVER
+      - DB_NAME
+      - PORT
+      - CLIENT_URL
+      - USERNAME
+      - PASSWORD
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - uploaded_files:/app/Documents
+  natheermock-db:
+    restart: always
+    container_name: natheermock-db
+    image: mysql:latest
+    expose:
+      - 3306
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+    volumes:
+      - mysql_volume:/var/lib/mysql
+volumes:
+  mysql_volume:
+  uploaded_files:
