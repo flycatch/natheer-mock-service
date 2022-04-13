@@ -3,6 +3,10 @@ app:
     username: ${USERNAME}
     password: ${PASSWORD}
     clientUrl: ${CLIENT_URL}
+  cors:
+    allowedOrigins: "*"
+    allowedMethods: GET, POST, DELETE, PUT
+    allowedHeaders: "*"
 spring:
   datasource:
     url: ${DB_URL}
