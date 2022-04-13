@@ -3,6 +3,7 @@ package com.flycatch.natheer.mock.service.controller;
 import com.flycatch.natheer.mock.service.Constants;
 import com.flycatch.natheer.mock.service.models.NatheerPersonDetails;
 import com.flycatch.natheer.mock.service.models.ResultStatus;
+import com.flycatch.natheer.mock.service.payloads.ApiResponse;
 import com.flycatch.natheer.mock.service.payloads.request.AddPersonBulkRequest;
 import com.flycatch.natheer.mock.service.payloads.request.PrimaryIdNotificationRequest;
 import com.flycatch.natheer.mock.service.payloads.response.AddedPersonResponse;
@@ -17,6 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -27,10 +29,11 @@ import org.springframework.web.client.RestTemplate;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class NatheerMockController {
 
     @Value("${app.util.clientUrl}")
-    private String  clientUrl;
+    private String clientUrl;
 
     @Value("${app.util.username}")
     private String username;
@@ -46,9 +49,10 @@ public class NatheerMockController {
     }
 
     @GetMapping("/trigger-primary-id/{personId}")
-    public ResponseEntity<String> primaryIdNotification(@PathVariable Long personId) {
+    public ResponseEntity<ApiResponse> primaryIdNotification(@PathVariable Long personId) {
+        log.info("trigerring primary id notification");
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization" , createHeaders(username, password));
+        headers.add("Authorization", createHeaders(username, password));
         PrimaryIdNotificationRequest primaryIdNotificationRequest = new PrimaryIdNotificationRequest();
         primaryIdNotificationRequest.setPrimaryId(personId);
         primaryIdNotificationRequest.setNotificationId(183);
@@ -57,15 +61,16 @@ public class NatheerMockController {
         list.add(primaryIdNotificationRequest);
         HttpEntity<List<PrimaryIdNotificationRequest>> request = new HttpEntity<>(list, headers);
         RestTemplate restTemplate = new RestTemplate();
+        log.info("sending notification");
         restTemplate.postForEntity(clientUrl, request, String.class);
-        return ResponseEntity.ok()
-                .body(Constants.SUCCESS);
+        log.info("request send");
+        return ApiResponse.create(HttpStatus.OK, true, Constants.SUCCESS);
     }
 
     String createHeaders(String username, String password) {
         String auth = username + ":" + password;
         byte[] encodedAuth = Base64.encodeBase64(
-                auth.getBytes(Charset.forName("US-ASCII")));
+            auth.getBytes(Charset.forName("US-ASCII")));
         return "Basic " + new String(encodedAuth);
     }
 
@@ -76,7 +81,7 @@ public class NatheerMockController {
             PersonDetailsResponse personDetailsResponse = new PersonDetailsResponse();
             personDetailsResponse.setPersonId(natheerPersonDetails1.getPersonId());
             var dob = natheerPersonDetails1.getPersonDob();
-            var s=dob.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+            var s = dob.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
             LocalDate date = LocalDate.parse(s, formatter);
             personDetailsResponse.setPersonDob(date);
